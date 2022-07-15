@@ -85,6 +85,11 @@ def cleanReversalsPre2012(dataframe):
     #Loop through every reversal
     for index,row in reversals.iterrows():
 
+        tempNum = row["trd_rpt_dt"][0:4].parseInt() + 1
+        max_date_string = tempNum.str() + row["trd_rpt_dt"][4:]
+
+        matched_transactions = dataframe
+
         #Pull all transactions that match the current reversal
         matched_transactions = dataframe[(dataframe["trd_exctn_dt"] < row["trd_rpt_dt"]) & (dataframe["trd_exctn_dt"] == row["trd_exctn_dt"]) & (dataframe["cusip_id"] == row["cusip_id"]) & (dataframe["trd_exctn_tm"] == row["trd_exctn_tm"]) & (dataframe["rptd_pr"] == row["rptd_pr"]) & (dataframe["entrd_vol_qt"] == row["entrd_vol_qt"]) & (dataframe["rpt_side_cd"] == row["rpt_side_cd"]) & (dataframe["cntra_mp_id"] == row["cntra_mp_id"])].copy()
         
