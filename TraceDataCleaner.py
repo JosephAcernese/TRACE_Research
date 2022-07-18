@@ -2,6 +2,19 @@
 import pandas as pd
 import numpy as np
 
+#Utility function to help create file names
+def prependNum(number):
+
+    if number < 10:
+        return "0"+str(number)
+
+    else:
+        return str(number)
+
+def createFileName(year,month):
+
+    return str(year) + prependNum(month) + ".csv"
+
 
 #Function which deals with the cancelations before 2012
 def cleanCancelationsPre2012(dataframe):
@@ -121,6 +134,7 @@ def cleanReversalsPost2012(dataframe):
 
 #Main block of code which imports the data, and calls the functions nessecary for cleaning it
 
+'''
 #Prompt user for filename, open it
 fileName = input("Enter the file or path to the file containing the TRACE data: ")
 trace_data = pd.read_csv(fileName, low_memory=False)
@@ -153,6 +167,36 @@ cleanReversalsPost2012(post2012)
 print("After reversals are removed")
 print(pre2012)
 print(post2012)
+'''
+
+
+fileNames = []
+
+for i in range(2002,2022):
+    
+
+    if i == 2002:
+
+        for f in range(7,13):
+
+            fileNames.append(createFileName(i,f))
+
+    if i == 2021:
+
+        for f in range(1,10):
+
+            fileNames.append(createFileName(i,f))
+
+    else:
+
+        for f in range(1,13):
+
+            fileNames.append(createFileName(i,f))
+
+
+
+    
+
 
 
 
