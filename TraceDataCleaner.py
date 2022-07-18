@@ -11,6 +11,8 @@ def prependNum(number):
     else:
         return str(number)
 
+
+#Utility function to help create files names
 def createFileName(year,month):
 
     return str(year) + prependNum(month) + ".csv"
@@ -132,6 +134,34 @@ def cleanReversalsPost2012(dataframe):
     return dataframe
 
 
+def cleanMonth(cur_month,next_month=False):
+
+    cur_month.dropna(subset=["cusip_id"],inplace=True)
+
+    if(next_month == False):
+
+        if(cur_month.head(1)["trd_rpt_dt"] < "2012-02-06"):
+            cleanCancelationsPre2012(cur_month)
+            cleanReversalsPre2012(cur_month)
+
+        else:
+            cleanCancelationsPost2012(cur_month)
+            cleanReversalsPost2012(cur_month)
+
+
+    else:
+
+        if(cur_month.head(1)["trd_rpt_dt"] < "2012-02-06"):
+            cleanCancelationsPre2012(cur_month)
+            cleanReversalsPre2012(cur_month,next_month = next_month)
+
+        else:
+            cleanCancelationsPost2012(cur_month)
+            cleanReversalsPost2012(cur_month, next_month)
+
+
+
+
 #Main block of code which imports the data, and calls the functions nessecary for cleaning it
 
 '''
@@ -164,6 +194,7 @@ print(post2012)
 cleanReversalsPre2012(pre2012)
 cleanReversalsPost2012(post2012)
 
+
 print("After reversals are removed")
 print(pre2012)
 print(post2012)
@@ -194,8 +225,26 @@ for i in range(2002,2022):
             fileNames.append(createFileName(i,f))
 
 
+length = len(fileName)
 
-    
+for i in range(length):
+
+    if i == length - 1:
+
+        cur_month = pd.read_csv(fileNames[i], low_memory=False)
+        cleanMonth(cur_month)
+        
+
+    else:
+
+        cur_month = pd.read_csv(fileNames[i], low_memory=False)
+        next_month = pd.read_csv(fileNames[i+1],low_memory = False)
+        cleanMonth(cur_month,next_month=next_month)
+
+        
+
+
+
 
 
 
