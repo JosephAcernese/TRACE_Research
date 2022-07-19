@@ -28,15 +28,15 @@ def cleanCancelationsPre2012(dataframe):
     dataframe.drop(dataframe[dataframe["trc_st"] == "C"].index , inplace=True)
 
     #Obtain list of all possible days
-    list_of_days = dataframe.drop_duplicates(subset="trd_exctn_dt")["trd_exctn_dt"].to_numpy()
+    list_of_days = dataframe.drop_duplicates(subset="trd_rpt_dt")["trd_rpt_dt"].to_numpy()
 
     #Loop through every date in the data
     for day in list_of_days:
 
         #Create a temporary dataframe of all transactions on a given day and all cancelations on a given day
         #This is to help with the efficiency of the code, it will result in less comparisons overall
-        temp_dataframe = dataframe[dataframe["trd_exctn_dt"] == day]
-        temp_cancellations = cancellations[cancellations["trd_exctn_dt"] == day]
+        temp_dataframe = dataframe[dataframe["trd_rpt_dt"] == day]
+        temp_cancellations = cancellations[cancellations["trd_rpt_dt"] == day]
 
         #Iterate through every cancellation for a given day
         for index,row in temp_cancellations.iterrows():
@@ -92,10 +92,10 @@ def cleanReversalsPre2012(dataframe):
     for index,row in reversals.iterrows():
 
         #Pull all transactions that match the current reversal
-        matched_transactions = dataframe[(dataframe["trd_exctn_dt"] < row["trd_rpt_dt"]) & (dataframe["trd_exctn_dt"] == row["trd_exctn_dt"]) & (dataframe["cusip_id"] == row["cusip_id"]) & (dataframe["trd_exctn_tm"] == row["trd_exctn_tm"]) & (dataframe["rptd_pr"] == row["rptd_pr"]) & (dataframe["entrd_vol_qt"] == row["entrd_vol_qt"]) & (dataframe["rpt_side_cd"] == row["rpt_side_cd"]) & (dataframe["cntra_mp_id"] == row["cntra_mp_id"])].copy()
+        matched_transactions = dataframe[(dataframe["trd_exctn_dt"] < row["trd_rpt_dt"]) & (dataframe["trd_exctn_dt"] == row["trd_exctn_dt"]) & (dataframe["cusip_id"] == row["cusip_id"]) & (dataframe["trd_exctn_tm"] == row["trd_exctn_tm"]) & (dataframe["rptd_pr"] == row["rptd_pr"]) & (dataframe["entrd_vol_qt"] == row["entrd_vol_qt"]) & (dataframe["rpt_side_cd"] == row["rpt_side_cd"]) & (dataframe["cntra_mp_id"] == row["cntra_mp_id"])]
         
         #If for some reason there's more than one that matches, keep only the first one
-        matched_transactions.drop_duplicates(subset=["trd_exctn_dt","bond_sym_id","trd_exctn_tm","rptd_pr","entrd_vol_qt"],keep="first",inplace=True)
+        matched_transactions = matched_transactions.drop_duplicates(subset=["trd_exctn_dt","bond_sym_id","trd_exctn_tm","rptd_pr","entrd_vol_qt"],keep="first")
 
         #Drop the index of the selected transaction
         dataframe.drop(matched_transactions.index)
@@ -153,45 +153,9 @@ def cleanMonth(cur_month):
 
 #Main block of code which imports the data, and calls the functions nessecary for cleaning it
 
-'''
-#Prompt user for filename, open it
-fileName = input("Enter the file or path to the file containing the TRACE data: ")
-trace_data = pd.read_csv(fileName, low_memory=False)
-
-
-#Remove all entries with no cusip_id
-trace_data.dropna(subset=["cusip_id"],inplace=True)
-#trace_data.drop(trace_data[trace_data["cusip_id"] == ""].index,inplace=True)
-
-
-pre2012 = trace_data[trace_data["trd_rpt_dt"] < "2012-02-06"].copy()
-post2012 = trace_data[trace_data["trd_rpt_dt"] >= "2012-02-06"].copy()
-
-print("Before any changes")
-print(pre2012)
-print(post2012)
-
-
-cleanCancelationsPre2012(pre2012)
-cleanCancelationsPost2012(post2012)
-
-
-print("After cancellations are removed")
-print(pre2012)
-print(post2012)
-
-cleanReversalsPre2012(pre2012)
-cleanReversalsPost2012(post2012)
-
-
-print("After reversals are removed")
-print(pre2012)
-print(post2012)
-'''
-
-
 fileNames = []
 
+#Loop to generate file names
 for i in range(2002,2022):
     
 
