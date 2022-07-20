@@ -73,7 +73,6 @@ def cleanCancelationsPost2012(dataframe):
 
             #Remove any rows where the msg_seq_nb matches a given cancellation
             dataframe.drop(temp_dataframe[ temp_dataframe['cusip_id']==row['cusip_id'] &  temp_dataframe['entrd_vol_qt']==row['entrd_vol_qt'] & temp_dataframe['rptd_pr']==row['rptd_pr'] & temp_dataframe['trd_exctn_tm']==row['trd_exctn_tm'] & temp_dataframe['rpt_side_cd']==row['rpt_side_cd'] &  temp_dataframe['cntra_mp_id']==row['cntra_mp_id'] & temp_dataframe['msg_seq_nb']==row['msg_seq_nb'] ].index )
-
     return dataframe
 
 
