@@ -135,24 +135,27 @@ def cleanMonth(cur_month):
 
     cur_month.dropna(subset=["cusip_id"],inplace=True)
 
-    pre2012 = cur_month[trace_data["trd_rpt_dt"] < "2012-02-06"]
-    post2012 = cur_month[trace_data["trd_rpt_dt"] >= "2012-02-06"]
+    pre2012 = cur_month[cur_month["trd_rpt_dt"] < "2012-02-06"]
+    post2012 = cur_month[cur_month["trd_rpt_dt"] >= "2012-02-06"]
 
     if len(pre2012.index) > 0:
-        cleanCancelationsPre2012(pre2012)
-        cleanReversalsPre2012(pre2012)
+        pre2012 = cleanCancelationsPre2012(pre2012)
+        pre2012 = cleanReversalsPre2012(pre2012)
     
     if len(post2012.index) > 0:
-        cleanCancelationsPost2012(post2012)
-        cleanReversalsPost2012(post2012)
+        post2012 = cleanCancelationsPost2012(post2012)
+        post2012 = cleanReversalsPost2012(post2012)
 
 
-
+    cur_month = pd.concat([pre2012,post2012])
+    return cur_month
 
 
 
 #Main block of code which imports the data, and calls the functions nessecary for cleaning it
 
+
+'''
 fileNames = []
 
 #Loop to generate file names
@@ -178,12 +181,30 @@ for i in range(2002,2022):
             fileNames.append(createFileName(i,f))
 
 
-length = len(fileName)
+length = len(fileNames)
 
 for i in range(length):
 
     cur_month = pd.read_csv(fileNames[i], low_memory=False)
     cleanMonth(cur_month)
+    print(fileNames[i] + " has been cleaned")
+    cur_month.to_csv("./CleanTraceData/clean_"+fileNames[i])
+    print(fileNames[i] + " has been saved")
+'''
+
+#This block of code is meant for my own personal debugging
+cur_month = pd.read_csv("./TestFile/TestData.csv", low_memory=False)
+cur_month = cleanMonth(cur_month)
+print(cur_month)
+
+cur_month = pd.read_csv("./TestFile/TestData2.csv", low_memory=False)
+cur_month = cleanMonth(cur_month)
+print(cur_month)
+ 
+
+
+
+
 
         
 
