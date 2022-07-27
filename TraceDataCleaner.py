@@ -80,7 +80,7 @@ def cleanReversalsPre2012(pre2012):
 
     #Remove duplicates from reversals,note this step might not be needed
     reversals.drop_duplicates(subset=["trd_exctn_dt","cusip_id","trd_exctn_tm","rptd_pr","entrd_vol_qt","rpt_side_cd","cntra_mp_id","trd_rpt_dt","trd_rpt_tm","msg_seq_nb"],keep="first",inplace=True)
-q
+
     #Loop through every reversal
     for index,row in reversals.iterrows():
 
