@@ -23,7 +23,7 @@ def cleanCancelationsPre2012():
     #Copy all cancellations into a new dataframe, then remove cancelations from the existing dataframe
     #cancellations is the equivalent of temp_delete
     cancellations = cur_month[ (cur_month["trd_rpt_dt"] < "2012-02-06") & ((cur_month["trc_st"] == "C") | (cur_month["trc_st"] == "W"))]
-    cur_month.drop(cur_month[(cur_month["trc_st"] == "C") & (cur_month["trd_rpt_dt"] < "2012-02-06")].index , inplace=True)
+    cur_month.drop(cancellations.index , inplace=True)
 
     #Obtain list of all possible days
     list_of_days = cancellations.drop_duplicates(subset="trd_rpt_dt")["trd_rpt_dt"].to_numpy()
@@ -77,7 +77,6 @@ def cleanReversalsPre2012():
     reversals = cur_month[ (cur_month["trd_rpt_dt"] >= "2012-02-06") & (cur_month["asof_cd"] == "R")]
     cur_month.drop(reversals.index)
 
-
     #Remove duplicates from reversals,note this step might not be needed
     reversals.drop_duplicates(subset=["trd_exctn_dt","cusip_id","trd_exctn_tm","rptd_pr","entrd_vol_qt","rpt_side_cd","cntra_mp_id","trd_rpt_dt","trd_rpt_tm","msg_seq_nb"],keep="first",inplace=True)
 
@@ -86,8 +85,8 @@ def cleanReversalsPre2012():
 
     for day in list_of_days:
 
-        temp_reversals = reversals
-        temp_dataframe = cur_month
+        temp_reversals = reversals[reversals["trd_exctn_dt"] == day]
+        temp_dataframe = cur_month[cur_month["trd_exctn_dt"] == day]
 
         #Loop through every reversal
         for index,row in temp_reversals.iterrows():
@@ -136,10 +135,8 @@ def cleanMonth():
     cleanCancelationsPost2012()
     cleanReversalsPost2012()
 
-
-
-#Main block of code which imports the data, and calls the functions nessecary for cleaning it
 '''
+#Main block of code which imports the data, and calls the functions nessecary for cleaning it
 fileNames = []
 
 #Loop to generate file names
@@ -172,25 +169,38 @@ for i in range(length):
     cur_month = pd.read_csv(fileNames[i], low_memory=False)
     cleanMonth()
     print(fileNames[i] + " has been cleaned")
-    cur_month.to_csv("./CleanTraceData/clean_"+fileNames[i])
+    cur_month.to_csv("./CleanTraceData/clean_"+fileNames[i], index=False)
     print(fileNames[i] + " has been saved")
+    
 '''
 
 #This block of code is meant for my own personal debugging
 cur_month = pd.read_csv("./TestFile/TestData.csv", low_memory=False)
-print(cur_month)
+
+
+print("FOR FIRST FILE BEFORE CLEAN")
+
+print("Total observations: " + str(len(cur_month.index)))
+print("Total reversals: " + str(len(cur_month[cur_month["asof_cd"] == "R"].index)))
+print("Total cancellations: " + str(len(cur_month[(cur_month["trc_st"] == "C") | (cur_month["trc_st"] == "W")].index)))
 
 cleanMonth()
 
-print(cur_month)
+cur_month.to_csv("./TestFile/Clean_TestData.csv",index=False)
+
+
+
+print("FOR FIRST FILE AFTER CLEAN")
+
+print("Total observations: " + str(len(cur_month.index)))
+print("Total reversals: " + str(len(cur_month[cur_month["asof_cd"] == "R"].index)))
+print("Total cancellations: " + str(len(cur_month[(cur_month["trc_st"] == "C") | (cur_month["trc_st"] == "W")].index)))
+
 
 cur_month = pd.read_csv("./TestFile/TestData2.csv", low_memory=False)
-print(cur_month)
-
+cur_month.to_csv("./TestFile/Clean_TestData2.csv",index=False)
 
 cleanMonth()
-
-print(cur_month)
 
 
 
